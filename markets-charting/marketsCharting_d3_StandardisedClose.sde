@@ -1,0 +1,452 @@
+
+	ò°ÞO¶$HªZð¾s¾¡ßStandardised Close$Plot close price standardised to 100"ÚThis visual study will standardise the closing price to a value and date point.
+
+Visual study supports multiple-security selection. To select multiple securities just hold down the CONTROL key whilst selecting securities. If you wish to select multiple securities which are not alphabtically close (can be tedius scrolling through hundreds of codes) type in the security codes (ticker) into the search field and hit enter. Place a space between each security code and be sure to match the case (UPPERCASE or lowercase).
+
+For example, typing the following into the search field will yield a selection of all security codes if they are available:
+
+NAB,ANZ,WBC,CBA
+
+NOTE: Match the case and use a comma (,) to seperate codes.*Anthony Nosek2 :VC:\Programs Finance\Stator AFM\visual studies\marketsCharting_d3_StandardisedClose.sdeBŒë¶½˜¢ö0JŠÃ‹á®¯˜4 ªÈN
+	ÞË<•ËIy@¶’Q†àÓ±N
+	ÞË<•ËIy@¶’Q†àÓ
+Sketch (1)ŠN// ----------------------------------------------------------
+// Written by Anthony Nosek (anthonynosek@gmail.com)
+//
+// Stator AFM (www.stator-afm.com) 
+// Anfield Capital
+// Latest revision: 20/07/2016
+// ----------------------------------------------------------
+
+// ENVIRONMENT SETUP
+// windowWidth and windowHeight are set in the HEAD section using jQuery.
+// This ensures the chart is sized to fill the available space.
+var margin = {top: 20, right: 73, bottom: 40, left: 20},
+    width = windowWidth - margin.left - margin.right,
+    height = windowHeight - margin.top - margin.bottom,
+    rightPadding = 50;
+
+
+// Setup the SVG panel for display of the chart.
+var svg = d3.select("body")
+	.append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+    .append("g")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+    .append("g");
+
+
+// MISC. FUNCTIONS
+// The JSON data data needs to be parsed into a ds.js date object.
+var parseDate = d3.timeParse("%Y-%m-%d");
+var minDate = new Date(9999, 01, 01),
+    maxDate = new Date(0000, 01, 01); 
+var color = d3.scaleOrdinal(d3.schemeCategory10);
+    
+    
+// JSON Data processing
+// Clean the dates in each price series
+// This only has to be performed once for the study
+for (var i = 0; i < dataPrice.length; i++) {
+	var price = dataPrice[i];
+	price.forEach(function(d) {
+		var datePart = d.DateTime.substring(0,10); 		
+ 		d.DateTime = parseDate(datePart); 		
+	});	
+	
+	var min = d3.min(price, function(d) { return d.DateTime; });
+	var max = d3.max(price, function(d) { return d.DateTime; });
+	if (min < minDate) minDate = min;
+	if (max > maxDate) maxDate = max;
+}
+
+
+// The data in the dataPrice[] array has to be normalised to a base value
+// for a specific date nominated by the user using the slider
+var normalisationBaseline = 100;
+var dateForNormalisation = new Date(2015, 00, 01); // JavaScript month is zero-based
+var cleanData = normaliseData(dateForNormalisation, normalisationBaseline);
+
+// Normalise the data for each price series into a new series
+function normaliseData(forDate, baseline) {
+	minClose = Math.pow(2,32) - 1;
+	maxClose = 0
+	
+	var normalisedData = [];
+	for (var i = 0; i < dataPrice.length; i++) {
+	
+		// Get the price series
+		var price = dataPrice[i];
+		var normalisedPrice = [];
+		var multiplier = 0;
+			
+		// Clean the date and search for the normalisation date
+		for (var x = 0; x < price.length; x++) {
+			var dt = price[x].DateTime.getTime();
+			var dt1C = price[x+1];
+			if (dt1C != null) {
+				var dt1 = price[x+1].DateTime.getTime();
+				var fdt = forDate.getTime();
+			
+				if (dt === fdt || (dt<fdt && dt1>fdt)) {
+		 			multiplier = normalisationBaseline / price[x].Close;
+		 			break;
+		 		}
+	 		}
+		}
+		
+		// Normalise the entire series
+		var idx = 0;
+		price.forEach(function(d) {
+			var pricePoint = [];
+			pricePoint.code = d.Identifier;
+			pricePoint.date = d.DateTime;
+			pricePoint.close = d.Close * multiplier;
+			normalisedPrice[idx] = pricePoint;			
+			idx = idx + 1;
+		});
+		
+		// Min and Max Closing Price
+		var min = d3.min(normalisedPrice, function(d) { return d.close; });
+		var max = d3.max(normalisedPrice, function(d) { return d.close; });
+		if (min < minClose) minClose = min;
+		if (max > maxClose) maxClose = max;
+	
+		normalisedData[i] = normalisedPrice;
+	}
+	
+	return normalisedData;
+}
+
+// Update the chart with a new passed in x co-ordinate
+function updateChart(xpoint, baseline) {
+	// determine the selected date
+	var forDate = new Date(x.invert(xpoint));
+	// recalculate the data
+	cleanData = normaliseData(forDate, baseline);
+
+	// Rescale the Y axis according to the move
+	y = scaleYAxis();
+		
+	// Move the value baseline
+	baseLine
+		.attr("y1", y(100))
+		.attr("y2", y(100));
+		
+	for (var i = 0; i < cleanData.length; i++) {
+		var price = cleanData[i];
+		var security = securitySeries[i];
+		var securityTitle = securitySeriesTitles[i];
+		
+		security
+			.datum(price)	
+			.transition()				
+			.attr("d", close)
+			.easeLinear;
+			
+		securityTitle			
+			.datum(function(d) { return { data: price[price.length - 1]}; })
+			.transition()
+			.text(function(d) { return d.data.code + " (" + d.data.close.toFixed(0) + ")"; })
+			.attr("transform", function(d) { return "translate(" + x(d.data.date) + "," + y(d.data.close) + ")"; })
+			.easeLinear;		
+	}
+}
+
+function updateYAxis() {
+	yAxis.remove();
+	yAxisGrid.remove();		
+	yAxisMake();
+}
+
+
+// AXIS SETUP
+// X Axis
+var x = scaleXAxis(minDate);
+function scaleXAxis(fromDate) {
+	return d3.scaleTime()
+	.range([0, width])
+	.domain([fromDate, maxDate]);
+}
+
+var xAxis;
+var xAxisGrid;
+xAxisMake();
+function xAxisMake() {
+	var scale = x;	
+	var axis = d3.axisBottom(scale);
+
+	var gridAxis = d3.axisBottom(scale)
+        .tickArguments(5)
+	
+	// X Axis dates
+	xAxis = svg.append("g")
+		.attr("class", "axis")
+		.attr("transform", "translate(0," + height + ")")
+		.call(axis);
+	
+	// X Axis grid
+    xAxisGrid = svg.append("g")   
+		.attr("class", "grid")
+		.attr("transform", "translate(0," + height + ")")
+		.call(gridAxis
+				.tickSize(-height, 0, 0)
+				.tickFormat(""))
+}
+
+// Y Axis
+var y = scaleYAxis();
+function scaleYAxis() {
+	return d3.scaleLinear()
+	    .range([height, 0])
+	    .domain([minClose*.98, maxClose*1.02]);
+}
+
+var yAxis;
+var yAxisGrid;
+yAxisMake();
+function yAxisMake() {
+	var scale = y;	
+	var axis = d3.axisRight(scale);
+	    	
+	var gridAxis = d3.axisLeft(scale)
+        .tickArguments(10);
+        
+	// Y Axis Price
+	yAxis = svg
+		.append("g")
+		.attr("class", "axis")
+		.attr("transform", "translate(" + width + ",0)")	
+		.call(axis);
+        
+   	// Y Axis grid
+	yAxisGrid = svg.append("g")         
+		.attr("class", "grid")
+		.call(gridAxis
+				.tickSize(-width, 0, 0)
+	    		.tickFormat(""))
+}
+
+
+// Drag behaviour for baseline
+function dragStarted() {
+  d3.event
+  	.on("drag", dragDateLine)
+  	.on("end", updateYAxis);
+}
+var dragDate = d3.drag()
+	.on("start", dragStarted);
+	
+// Draw lines at the baseline junction
+var baseLine = svg.append("g")
+	.append("svg:line")
+	.attr("class", "baseline")
+	.attr("x1", 0)
+	.attr("x2", width)
+	.attr("y1", y(normalisationBaseline))
+	.attr("y2", y(normalisationBaseline));
+	
+var dateLine = svg.append("g")
+	.append("svg:line")
+	.attr("class", "baseline")
+	.attr("x1", x(dateForNormalisation))
+	.attr("x2", x(dateForNormalisation))
+	.attr("y1", 0)
+	.attr("y2", height)
+	.style("stroke-width", 2)
+	.call(dragDate);
+
+var dateCircle = svg.append("svg:circle")
+    .attr("cx", x(dateForNormalisation))
+    .attr("cy", height)
+    .attr("r", 6)
+    .attr("fill", "violet")
+    .call(dragDate);
+    
+var dateCircleBig = svg.append("svg:circle")
+    .attr("cx", x(dateForNormalisation))
+    .attr("cy", height)
+    .attr("r", 20)
+    .attr("fill", "none")
+    .call(dragDate);
+    
+dateCircle.on({
+	"mouseover": function(d) {
+		d3.select(this).style("cursor", "hand")
+	},
+	"mouseout": function(d) {
+		d3.select(this).style("cursor", "default")
+	}
+});
+	
+function dragDateLine() {
+	var newX = function(){return Math.min(Math.max(d3.event.x, 0), width)};
+    dateLine
+        .attr("x1", newX)
+        .attr("x2", newX);    
+    dateCircle
+        .attr("cx", newX);
+    dateCircleBig
+    	.attr("cx", newX);
+    
+    var x1 = dateLine.attr("x1");
+    dateTitle
+    	.text("Baseline Date: " + GetDateInEnglish(x.invert(x1)));
+    	
+    updateChart(x1, normalisationBaseline);
+}
+
+
+// Set the SERIES
+var close = d3.line()
+	.curve(d3.curveMonotoneX)
+	.x(function(d) { return x(d.date); })
+	.y(function(d) { return y(d.close); });	
+
+var securitySeries = [];
+var securitySeriesTitles = [];
+for (var i = 0; i < cleanData.length; i++) {
+	var price = cleanData[i];
+	securitySeries[i] = svg.append("path")
+		.datum(price)		
+		.attr("d", close)	
+		.attr("class", "line")
+		.style("stroke", color(i));
+		
+	securitySeriesTitles[i] = svg.append("text")
+		.datum(function(d) { return { data: price[price.length - 1]}; })
+		.attr("transform", function(d) { return "translate(" + x(d.data.date) + "," + y(d.data.close) + ")"; })
+		.attr("x", 4)
+		.attr("dy", ".35em")
+		.attr("class", "series_title")
+		.text(function(d) { return d.data.code + " (" + d.data.close.toFixed(0) + ")"; })
+		.style("fill", color(i));	
+}
+
+
+// Chart titles
+var titleX = svg.append("text")
+    .attr("class", "title")
+    .attr("y", 0);
+    
+titleX.append("tspan")
+    .attr("x", -5)
+    .style("font-weight", "bold")
+    .text("Standardised Closing Price");
+
+var dateTitle = titleX.append("tspan")
+	.attr("id", "dateTitle")
+    .attr("x", 0)
+    .style("font-size", 12)
+    .attr("dy", "1.4em")
+    .text("Baseline Date: " + GetDateInEnglish(dateForNormalisation));
+    
+titleX.append("tspan")
+    .attr("x", 0)
+    .style("font-size", 12)
+    .attr("dy", "1.3em")
+    .text("Baseline Value: " + normalisationBaseline);
+    
+var instruction = svg.append("text")
+    .attr("class", "instruction")
+    .attr("y", height + 35)
+    .text("Drag the circle to adjust the baseline date");
+    
+    
+// Date formatting function
+function GetDateInEnglish(date) {
+	var m_names = new Array("January", "February", "March", 
+							"April", "May", "June", "July", 
+							"August", "September", "October", 
+							"November", "December");
+	
+	var d = date;
+	var curr_date = d.getDate();
+	var sup = "";
+	if (curr_date == 1 || curr_date == 21 || curr_date ==31) {
+	   sup = "st";
+	}
+	else if (curr_date == 2 || curr_date == 22) {
+	   sup = "nd";
+	}
+	else if (curr_date == 3 || curr_date == 23) {
+	   sup = "rd";
+	}
+	else {
+	   sup = "th";
+	}
+	
+	var curr_month = d.getMonth();
+	var curr_year = d.getFullYear();
+	
+	return curr_date + sup + " " + m_names[curr_month] + " " + curr_year;
+}RD3²
+VS_GREENð ú €˜¢÷<script>
+	var windowWidth = $(window).width();
+	var windowHeight = $(window).height();
+</script>
+
+<style>
+
+	body {
+	 	font: 10px sans-serif;
+	}
+
+	.axis {
+		fill: grey;
+	    font-family: sans-serif;
+	    font-size: 12px;
+	}
+
+	.axis path,
+	.axis line {
+  		fill: none;
+  		stroke: grey;
+  		shape-rendering: crispEdges;
+	}
+
+	.line {
+	  	fill: none;
+	  	stroke: steelblue;
+	  	stroke-width: 1.2px;
+	}
+	
+	.baseline {
+		stroke: lightgrey;
+		stroke-width: 1px;
+		shape-rendering: crispEdges;
+  	}
+  	
+ 	.grid 
+	.tick {
+    	stroke: Gainsboro;
+    	stroke-width: 0.5px;
+    	opacity: 0.50;
+	}
+
+	.grid path {
+		stroke-width: 0;
+		shape-rendering: crispEdges
+	}
+	
+	.title {
+		fill: black;
+	    font-family: sans-serif;
+	    font-size: 14px;
+	}
+	
+	.instruction {
+		fill: darkgrey;
+	    font-family: sans-serif;
+	    font-size: 10px;
+	}
+	
+	.series_title {
+		fill: black;
+	    font-family: sans-serif;
+	    font-weight: bold;
+	    font-size: 12px;
+	}
+
+</style>¨À Ðè ø

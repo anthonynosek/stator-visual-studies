@@ -1,0 +1,456 @@
+
+	™B‘<K1–C¬í(“o½Transactions by typeCash transactions by type"¢This visual study displays cash transaction totals by currency and type.
+Data is displayed as a bar chart, ordering can be toggled between type and total amount.*Anthony Nosek2None :RC:\Programs Finance\Stator AFM\visual studies\estateCashTransactions_d3_byType.sdeB’é±¿Ïœë0J¸º®à×±˜4 ªH
+	PgÓ{Ác¼MõaEýPùG
+	PgÓ{Ác¼MõaEýPby TypeÓG// ----------------------------------------------------------
+// Written by Anthony Nosek (anthonynosek@gmail.com)
+//
+// Stator AFM (www.stator-afm.com) 
+// Anfield Capital
+// Latest revision: 20/07/2016
+// ----------------------------------------------------------
+
+// Environment Setup
+// windowWidth and windowHeight are set in the HEAD section using jQuery.
+// This ensures the chart is sized to fill the available space.
+var margin = {top: 30, right: 20, bottom: 40, left: 20},
+    width = windowWidth - margin.left - margin.right,
+    height = windowHeight - margin.top - margin.bottom
+    numberFormat = d3.format(",.2f"),    
+    chartFooterHeight = 19,
+    leftColumnTextIndent = 20,
+    leftColumn = 120,  
+	linkText = "",
+    total = 0;    
+       
+
+// JSON DATA PROCESSING
+// Obtain a sum for each currency and transaction type
+function getDataForCurrency(currency) {
+	var filter = function(x) { return x.currency.ID === currency };
+	var dataForCurrency = Enumerable.From(dataTransactions)					 
+					 .GroupBy("{ currency: $.Currency, type: $.Type }", null,
+						    function (key, g) {
+						        var result = {
+						        	type_currency: key.type.Description + " (" + key.currency.ID + ")",
+						        	type: key.type,
+						        	count: g.Count(),
+						            currency: key.currency,
+						            total: g.Sum("$.AmountTransactionCurrency")
+						        }
+						        return result;
+						    }, function (x){return x.currency.ID + ':' + x.type.Description})
+				 	 .Where(filter)
+				 	 .OrderBy(function (x){return x.type})
+					 .ToArray();
+
+	total = Enumerable.From(dataForCurrency)
+					  .Sum(function(d){ return d.total; })
+					  .toFixed(2);
+					  
+	return dataForCurrency;
+}
+
+
+// Get distinct currencies into an array for the dropdown
+var currencies = Enumerable.From(dataTransactions)
+						   .Distinct(function(x){ return x.Currency.ID })
+						   .OrderBy(function(x){ return x.Currency.ID })
+						   .Select(function(x){ return x.Currency.ID })
+						   .ToArray();
+
+
+// Set the initial currency selection (first in the currency array)
+if (currencies.length > 0)
+	selectedCurrency = currencies[0];	
+else
+	selectedCurrency = "";
+	
+
+// Create a dropdown with all the currencies
+var dropdown = d3.select("body")
+	.append("select")
+	.on('change', change)
+	.attr("class", "dropdown")
+	.attr("name", "cboCurrency")
+	.selectAll("option")
+	.data(currencies)
+	.enter()
+	.append("option")
+	.attr("value", function(d){ return d; })
+    .text(function(d){ return d; })    
+
+function change() {
+	selectedCurrency = this.options[this.selectedIndex].__data__;
+	data = getDataForCurrency(selectedCurrency);
+	
+	d3.selectAll("svg")
+		.remove();
+	
+	drawStudy();
+}
+
+
+// Draw the initial study using the first currency selection
+var data = getDataForCurrency(selectedCurrency);
+var hasData = data.length > 0;
+if (hasData) {
+	drawStudy();
+}
+else {
+	var svg = getDefaultSVG();
+	svg.append("text")
+	    .attr("class", "title_nodata")
+	    .attr("y", 0)
+	    .text("No data for selected currency.");
+}
+
+
+// X and Y axis scales
+var y;
+var y_domain;	
+function buildYDomain(data) {
+	y_domain = data.map(function(d, i) { return data[i].type_currency; });
+	y = d3.scale.ordinal()
+		.domain(y_domain)
+	    .rangeRoundBands([0, height-chartFooterHeight], .2);
+}
+	
+var x;
+function buildXDomain(data) {
+	var x_min = d3.min(data, function(d) { return d.total; });
+	var x_max = d3.max(data, function(d) { return d.total; });
+	var left = x_min < 0 ? x_min : 0;
+	var right = x_max > 0 ? x_max : 0;
+	
+	// .nice() ensures the x domain is rounded to a whole number
+	x = d3.scale.linear()
+		.domain([left, right]).nice()
+	   	.range([leftColumn, width]);
+}
+
+	
+// Return the default SVG element
+function getDefaultSVG() {
+	return d3.select("body")
+		.append("svg:svg")
+	    .attr("width", width + margin.left + margin.right)
+	    .attr("height", (height - chartFooterHeight) + margin.top)
+	  	.append("g")
+	    .attr("transform", "translate(" + margin.left + "," + margin.top + ")")	    
+	    .append("g");
+}
+
+
+// Make the X Axis
+function makeXAxis() {        
+    return d3.svg.axis()
+	    .scale(x)
+	    .tickFormat(d3.format("0s"))
+	    .orient("top");
+}
+
+
+// Master function used to draw visual studies
+function drawStudy() {
+
+	// Append the data to the svg
+	var svg = getDefaultSVG();
+	
+	
+	var svgFooter = d3.select("body")
+		.append("svg")
+		.attr("width", width + margin.left + margin.right)
+	    .attr("height", chartFooterHeight)
+	    .append("g")
+	    .attr("transform", "translate(" + margin.left + "," + 0 + ")");
+	
+
+	// Setup the X and Y scales		
+	buildXDomain(data);
+	buildYDomain(data);	
+	
+	
+	// x axis scale
+	var xAxis = makeXAxis();
+	    
+
+	// Draw the rectangles for the visual study
+	bar = svg.selectAll(".bar")
+		.data(data)
+		.enter()
+		.append("rect")
+		.attr("class", function(d) { return d.total < 0 ? "bar negative" : "bar positive"; })
+		.attr("x", function(d) { return x(Math.min(0, d.total)); })
+		.attr("y", function(d) { return y(d.type_currency); })
+		.attr("height", y.rangeBand())
+		.attr("width", function(d) { return Math.abs(x(d.total) - x(0)); })
+		.style("opacity", 0);	
+		
+	    
+	// Setup various mouse over events
+	svg.selectAll(".bar")
+		.on("mouseover", mouseOver)
+	    .on("mouseout", mouseOut);	
+	    
+		
+	// The transition effect when the visual study is loaded
+	svg.selectAll(".bar")
+		.transition()
+		.style("opacity", 1)
+		.duration(800);	
+		
+	
+	// Labels for each transction type
+	labels = svg.selectAll("text")
+	    .data(data)
+		.enter()
+		.append("text")
+		.attr("class", "label")
+		.attr("x", leftColumn - leftColumnTextIndent)
+		.attr("y", function(d) { return y(d.type_currency); })
+		.attr("dy", "1em")
+		.attr("text-anchor", "end")
+		.text(function(d) { return d.type.Description; });
+		
+	
+	labels.append("tspan")
+		.attr("dy", "1.1em")
+		.style("fill", "dimgrey")
+		.attr("x", leftColumn - leftColumnTextIndent)
+		.text(function(d) { return numberFormat(d.total); });
+		
+		
+	// X and Y Axis
+	// X Axis
+	svg.append("g")
+		.attr("class", "x axis")
+		.call(xAxis);
+		
+	
+	// Y Axis
+	svg.append("g")
+		.attr("class", "y axis")
+		.append("line")
+		.attr("x1", x(0))
+		.attr("x2", x(0))
+		.attr("y2", height);
+		
+	
+	// Display the total
+	svgFooter.append("text")
+		.attr("x", leftColumn - leftColumnTextIndent)
+	  	.attr("y", 16)
+	    .attr("class", "label")
+	    .attr("text-anchor", "end")
+	    .style("font-weight", "bold")
+	    .style("fill", "dimgrey")
+		.text(numberFormat(total));
+		
+
+	svgFooter.append("svg:line")
+		.attr("class", "total_line")
+		.attr("x1", 0)
+		.attr("x2", leftColumn - leftColumnTextIndent)
+		.attr("y1", 1)
+		.attr("y2", 1);   
+		
+
+	// Chart title (Currency)
+	svg.append("text")
+		.attr("class", "title")
+		.style("fill", function() { return total < 0 ? "brown" : "seagreen"; })
+		.text(selectedCurrency);
+		
+
+	// Study ordering methods
+	// Link to toggle ordering
+	linkText = svgFooter.append("text")
+	  	.attr("x", width + 9)
+	  	.attr("y", 16)
+	    .attr("class", "link_text")
+	    .attr("text-anchor", "end")
+		.text(getLinkText())
+		.on("click", function(d){transitionView()});
+
+	// Setup the tooltip for the data
+	setupToolTip();
+}
+
+
+// Return the text for the ordering link
+function getLinkText() {
+	if (Ordered == true)
+		return "Order by type";		
+	else
+		return "Order by total";
+}
+
+
+// Mouse events
+var selectedBar;
+function mouseOver(d) {
+	selectedBar = d;
+	var bar = d3.select(this);
+	bar.style("opacity", .8);
+}
+
+function mouseOut() {	
+	var bar = d3.select(this);
+	bar.style("opacity", 1);
+}
+
+
+// Tooltip Setup
+function getTooltipText() {
+	var p = selectedBar;
+	return 	"<b>" + p.type.Description + " </b><br>" + 
+		p.currency.ISODescription + "<br>" +
+		"Total: " + numberFormat(p.total) + "<br>" +
+		"Transactions: " + p.count;
+}
+
+function setupToolTip() {
+	$('.bar').qtip({
+	    content: {
+	        text: getTooltipText
+	    },
+	   	hide: {
+	    	fixed: true,
+	     	delay: 300
+	   	},
+	  	position: {
+	        my: 'bottom middle',
+	        at: 'top center',
+	        viewport: $(window)
+	    },
+	    show: {
+	    	delay: 30
+	    },
+	    style: {
+	        classes: 'qtip-bootstrap qtooltip'        
+	    }
+	})
+}
+
+
+// Transition the view by ordering selection
+var Ordered = false;
+function transitionView() {
+	
+	if (!Ordered) {	
+		data.sort(function(a, b) { return b.total - a.total; });
+	} else {	
+		data.sort(function(a, b) { return (a.type_currency > b.type_currency) 
+					? 1 : ((b.type_currency > a.type_currency) ? -1 : 0);} );
+	}
+	
+	buildYDomain(data);
+		
+	bar.transition()
+		.duration(750)
+		.delay(function(d, i) { return i * 50; })
+		.attr("y", function(d,i){ return y(d.type_currency); });
+		
+	labels.transition()
+		.duration(750)
+		.delay(function(d, i) { return i * 50; })
+		.attr("y", function(d,i){ return y(d.type_currency); });
+		
+	Ordered = !Ordered;
+	linkText.text(getLinkText());
+}RD3v3²
+VS_GREENð ú €˜¢ª<script>
+	var windowWidth = $(window).width();
+	var windowHeight = $(window).height();
+</script>
+
+<style>
+
+	.bar.positive {
+		fill: seagreen;
+		opacity: 1;
+	}
+	
+	.bar.negative {
+		fill: brown;
+		opacity: 1;
+	}
+
+	.axis path {
+	    fill: none;
+	    stroke: silver;
+	    shape-rendering: crispEdges;
+	}
+	
+	.axis line {
+	    fill: none;
+	    stroke: silver;
+	    shape-rendering: crispEdges;
+	}
+
+	.axis text {
+		fill: black;
+	    font-family: sans-serif;
+	    font-size: 13px;
+	}
+	
+	.label {
+		fill: black;
+	    font-family: consolas, monaco, monospace;
+	    font-family: sans-serif;
+	    font-size: 12px;
+	}
+	
+	.grid .tick {
+		stroke: lightgrey;
+		opacity: 0.7;
+	}
+	.grid path {
+		stroke-width: 0;
+	}
+	
+	.title {
+		fill: black;
+	    font-family: sans-serif;
+	    font-size: 20px;
+	    font-weight: bold;
+	}
+	
+	.title_nodata {
+		fill: grey;
+	    font-family: sans-serif;
+	    font-size: 15px;
+	}
+	
+	.total_line {
+		stroke: lightgrey;
+		stroke-width: 1px;
+		shape-rendering: crispEdges;
+  	}
+	
+	.qtooltip {
+		font-family: consolas, monaco, monospace;
+	    font-size: 12px;
+	    line-height: 14px;
+	}	
+	
+	.link_text {
+		fill: RoyalBlue;
+	    font-family: sans-serif;
+	    font-size: 12px;
+	    cursor: default;
+	}
+	
+	.link_text:hover {
+		fill: MediumBlue;
+		cursor: pointer;
+	}
+	
+	.dropdown {
+		float: right;
+		margin-right: 10px;
+		margin-top: 10px;
+	}
+
+</style>¨À Ê Ðè ò ø

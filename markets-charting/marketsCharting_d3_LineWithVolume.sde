@@ -1,0 +1,352 @@
+
+	
+©"ŒÕÖOáﬁ˚±…M4™Line with Volume (d3)Line chart example using d3.js"∂This is an example visual study using d3.js.
+
+The four price series of open, high, low, close are plotted. Volume is plotted in a secondary axis located at the bottom of the chart.*Anthony Nosek2 :SC:\Programs Finance\Stator AFM\visual studies\marketsCharting_d3_LineWithVolume.sdeB™≈¿ËÄôÊ0Jå≠◊ı÷Øò4†™ù<
+	¬#:Q{!ıDë∞†‹¯úìÜ<
+	¬#:Q{!ıDë∞†‹¯úìCharting Code‹;// ----------------------------------------------------------
+// Written by Anthony Nosek (anthonynosek@gmail.com)
+//
+// Stator AFM (www.stator-afm.com) 
+// Anfield Capital
+// Latest revision: 20/07/2016
+// ----------------------------------------------------------
+
+// ENVIRONMENT SETUP
+// windowWidth and windowHeight are set in the HEAD section using jQuery.
+// This ensures the chart is sized to fill the available space.
+var margin = {top: 10, right: 70, bottom: 40, left: 20},
+    width = windowWidth - margin.left - margin.right,
+    height = windowHeight - margin.top - margin.bottom,
+    volumePercentOfChart = 0.15
+    axisMarginPercent = 0.05;
+
+// Setup the SVG panel for display of the chart.
+var svg = d3.select("body")
+	.append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+    .append("g")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+    .append("g");
+
+// Set a series for each of the prices (Open, High, Low, Close).
+var close = d3.line()
+	.curve(d3.curveMonotoneX)
+    .x(function(d) { return x(d.DateTime); })
+    .y(function(d) { return yPrice(d.Close); });
+    
+var open = d3.line()
+	.curve(d3.curveMonotoneX)
+    .x(function(d) { return x(d.DateTime); })
+    .y(function(d) { return yPrice(d.Open); });
+    
+// Set the volume series.
+var volume = d3.line()
+	.x(function(d) { return x(d.DateTime); })
+    .y(function(d) { return yVolume(d.Volume); });
+
+//High-Low Area
+var hilo = d3.area()
+	.curve(d3.curveMonotoneX)
+    .x(function(d) { return x(d.DateTime); })
+    .y0(function(d) { return yPrice(d.Low); })
+    .y1(function(d) { return yPrice(d.High); });
+    
+    
+// MISC. FUNCTIONS
+// The JSON data data needs to be parsed into a ds.js date object.
+var parseDate = d3.timeParse("%Y-%m-%d"),
+    bisectDate = d3.bisector(function(d) { return d.DateTime; }).left,
+    formatValue = d3.format(",.2f");
+      
+
+// JSON DATA PROCESSING
+price = dataPrice[0];
+// Parse the date found in the JSON data to a d3 date value.
+price.forEach(function(d) {
+	var datePart = d.DateTime.substring(0,10);
+ 	d.DateTime = parseDate(datePart);
+});
+
+
+// SCALE SETUP
+// Set the x and y scales and axis.
+var panelSeperationPixels = height * axisMarginPercent;
+var panelPriceEnd = (height * (1-volumePercentOfChart)) - panelSeperationPixels/2;
+var panelVolumeStart = (height * (1-volumePercentOfChart)) + panelSeperationPixels/2;
+
+var x = d3.scaleTime()
+	.range([0, width])
+	.domain(d3.extent(price, function(d) { return d.DateTime; }));
+
+var yPrice = d3.scaleLinear()
+    .range([panelPriceEnd, 0])
+    .domain([d3.min(price, function(d) { return d.Low; }) * .98, 
+		  	 d3.max(price, function(d) { return d.High; }) * 1.02]);
+    
+var yVolume = d3.scaleLinear()
+	.range([height, panelVolumeStart])
+	.domain([0, d3.max(price, function(d) { return d.Volume; }) * 1.02]);
+	
+	
+// INTERACTION FUNCTIONS
+// Mouse move displays information for the data underneath the mouse
+function mousemove() {
+	var x0 = x.invert(d3.mouse(this)[0]),
+    	i = bisectDate(price, x0, 1),
+    	d0 = price[i - 1],
+    	d1 = price[i],
+    	d = x0 - d0.DateTime > d1.DateTime - x0 ? d1 : d0;
+	focus.attr("transform", "translate(" + x(d.DateTime) + "," + yPrice(d.Close) + ")");
+	focus.select("text").text("Close: " + formatValue(d.Close));
+}
+	
+	
+// AXIS SETUP
+var xAxis = d3.axisBottom(x);
+var yAxisPrice = d3.axisRight(yPrice);
+    
+var yAxisVolume = d3.axisRight(yVolume)
+    .tickFormat(d3.format("0s"))
+    .tickArguments(5);
+    
+function make_x_axis() {        
+    return d3.axisBottom(x)
+        .tickArguments(5)        
+}
+
+function make_yPrice_axis() {        
+    return d3.axisLeft(yPrice)
+        .tickArguments(10)
+}
+
+function make_yVolume_axis() {        
+    return d3.axisLeft(yVolume)
+        .tickArguments(5)
+}
+
+
+// Gridlines
+// Create the grid lines for the study
+// X Axis grid
+svg.append("g")         
+	.attr("class", "grid")
+	.attr("transform", "translate(0," + height + ")")
+	.call(make_x_axis()
+			.tickSize(-height, 0, 0)
+			.tickFormat(""))
+
+// Y Axis grid
+svg.append("g")         
+	.attr("class", "grid")
+	.call(make_yPrice_axis()
+			.tickSize(-width, 0, 0)
+    		.tickFormat(""))
+
+svg.append("g")         
+	.attr("class", "grid")
+	.call(make_yVolume_axis()
+			.tickSize(-width, 0, 0)
+    		.tickFormat(""))
+    		
+
+// BUILD THE CHART
+// Assign the data to the chart.
+svg.append("path")
+	.datum(price)
+	.attr("class", "hilo")
+	.attr("d", hilo);
+	
+svg.append("path")
+	.datum(price)
+	.attr("class", "open")
+	.attr("d", open);
+	
+svg.append("path")
+	.datum(price)
+	.attr("class", "close")
+	.attr("d", close);
+
+// Build the volume series
+var barPadding = 0.5;
+var scale = (d3.max(price, function(d) { return d.Volume; }) * 1.02) / (height - panelVolumeStart);
+svg.selectAll("rect")
+	.data(price)
+	.enter()
+	.append("rect")
+	.attr("y", function(d, i) { return height - (price[i].Volume / scale); })
+	.attr("x", function(d, i) { return i * (width / price.length) })
+	.attr("width", width / price.length - barPadding)
+	.attr("height", function(d, i) { return price[i].Volume / scale; })
+	.attr("class", "volume");
+	
+// Axis titles
+//Create price axis label
+var priceBox = svg.append("rect")
+	.attr("class", "series_box")
+  	.attr("x", 0)
+  	.attr("y", -10)
+  	.attr("width", 40)
+  	.attr("height", 20);	
+var priceText = priceBox.node().getBBox();
+svg.append("text")
+  	.attr("x", 4)
+  	.attr("y", 5)
+	.attr("class", "series_text")
+	.text("Price");
+
+var volumeBox = svg.append("rect")
+	.attr("class", "series_box")
+  	.attr("x", 0)
+  	.attr("y", panelVolumeStart-(panelSeperationPixels/2)-23)
+  	.attr("width", 50)
+  	.attr("height", 20);	
+var volumeText = volumeBox.node().getBBox();
+svg.append("text")
+  	.attr("x", 4)
+  	.attr("y", panelVolumeStart-(panelSeperationPixels/2)-8)
+	.attr("class", "series_text")
+	.text("Volume");
+
+// Append axis to the chart
+// X Axis
+svg.append("g")
+	.attr("class", "x axis")
+	.attr("transform", "translate(0," + height + ")")
+	.call(xAxis);
+	
+// Y Axis Price
+svg.append("g")
+	.attr("class", "y axis")
+	.attr("transform", "translate(" + width + ",0)")
+	.call(yAxisPrice);	
+	
+// Y Axis Volume
+svg.append("g")
+	.attr("class", "y axis")
+	.attr("transform", "translate(" + width + ",0)")
+	.call(yAxisVolume);
+	
+// Line in between the price and volume
+var middlePoint = panelVolumeStart - (panelSeperationPixels/2);
+svg.append("svg:line")
+    .attr("x1", 0)
+    .attr("y1", middlePoint)
+    .attr("x2", width)
+    .attr("y2", middlePoint)
+    .style("stroke-dasharray", ("2"))
+    .style("stroke", "black")
+    .style("stroke-width", "0.5px");
+    
+// Mouse focus and functions to display the data when the mouse hovers
+// over the data. We display the closing price on the chart
+var focus = svg.append("g")
+	.attr("class", "focus")
+	.style("display", "none");
+
+focus.append("circle")
+	.attr("r", 6);
+
+focus.append("text")
+	.attr("x", 12)
+	.attr("class", "overlay_text")
+	.attr("dy", ".35em");
+
+svg.append("rect")
+	.attr("class", "overlay")
+	.attr("width", width)
+	.attr("height", height)
+	.on("mouseover", function() { focus.style("display", null); })
+	.on("mouseout", function() { focus.style("display", "none"); })
+	.on("mousemove", mousemove);
+	
+// Set the transition that occurs when the data is loaded
+svg.attr("transform", "translate(0," + height + ") scale(1, 0)")
+	.transition()
+	.duration(150)
+	.attr("transform", "translate(0,0) scale(1, 1)");RD3≤
+	VS_ORANGE  ˙ Äò¢ﬂ<script>
+	var windowWidth = $(window).width();
+	var windowHeight = $(window).height();
+</script>
+
+<style>
+
+	body {
+		font: 12px sans-serif;
+	}
+	
+	path {
+		fill: none;
+		stroke-width: 1;
+	}
+	
+	.grid 
+	.tick {
+    	stroke: Gainsboro;
+    	stroke-width: 0.5px;
+    	opacity: 0.50;
+	}
+
+	.grid path {
+		stroke-width: 0;
+		shape-rendering: crispEdges
+	}
+	
+	.open {
+		stroke: Plum;
+	}
+	
+	.hilo {
+  		fill: Lavender;
+	}
+	
+	.close {
+		stroke: slateblue;
+		stroke-width: 1.5px;
+	}
+	
+	.volume {
+		stroke: none;
+		fill: MediumPurple;
+	}
+	
+	.axis path,
+	.axis line {
+  		fill: none;
+  		stroke: grey;
+  		shape-rendering: crispEdges;
+	}
+	
+	.series_text {
+		z-index: 1;
+		font: 12px sans-serif;
+		font-weight: bold;
+		text-anchor: left;
+		fill: MediumPurple;
+	}
+	
+	.series_box {
+		z-index: 0;
+		fill: Lavender;
+		fill-opacity: .95;
+		stroke-width: 0.5;
+		stroke: MediumPurple;
+	}
+	
+	.overlay {
+  		fill: none;
+ 	 	pointer-events: all;
+	}
+
+	.focus circle {
+  		fill: none;
+  		stroke: slateblue;
+	}
+	
+	.overlay_text {
+		font-weight: bold;
+	}
+
+</style>®¿ – Ë ¯

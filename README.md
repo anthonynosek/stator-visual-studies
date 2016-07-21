@@ -1,4 +1,6 @@
-# Stator AFM (Visual Studies)
+<a href="http://www.stator-afm.com/">![Stator](https://raw.githubusercontent.com/anthonynosek/stator-visual-studies/master/_misc/graphics/stator_icon.png?raw=true)</a>
+
+## Stator AFM (Visual Studies)
 
 <a href="http://www.stator-afm.com">**Stator AFM**</a> is easy to use portfolio management software for traders and investors. Stator is highly analytical and comes with a free visualisation add-on allowing users to go nuts creating interesting visualisations of their financial, trading and investing data.
 
@@ -17,7 +19,11 @@ And yeah, I am the guy that wrote Stator so <i>send me some love if you don't mi
  
 * [Team Members](#team-members)
 * [What is visual studies?](#what-visual)
-* [Show me some pictures](#show-pictures)
+* [Show me pictures](#show-pictures)
+* [How does it work?](#how-work)
+* [The data domains within Stator](#data-domains)
+* [The development environment](#ide-environment)
+* [I want to contribute](#contribute)
 * [License](#license)
  
 ## <a name="team-members"></a>Team Members
@@ -50,7 +56,57 @@ Please note: <i>Visual studies functionality has been designed in such a way tha
 
 ## <a name="show-pictures"></a>Enough already, a picture is worth a thousand words
 
+Here are a couple of pictures that should give you an idea what visual studies is all about. Normally, within Stator data is displayed in tabular form, for example we do this when displaying open or closed positions. This is a very traditional way of displaying information to a user and can often hide patterns within the data that we should look to explore and learn from.
+
+![markets domain](https://raw.githubusercontent.com/anthonynosek/stator-visual-studies/master/_misc/graphics/visualstudies_chartdataexample.jpg?raw=true)
+
+<i>Markets Charting data domain</i>
+
+![position domain](https://raw.githubusercontent.com/anthonynosek/stator-visual-studies/master/_misc/graphics/visualstudies_closedpositiondataexample.jpg?raw=true)
+
+<i>Open Positions data domain</i>
+
+What can be seen in the two pictures above are **two alternatives to the same underlying data**. The data repository is shown on the left, it looks like a dark barrel. On the right are two images, the default Stator screen is shown above and an alternative visualisation of the same data shown underneath.
+
+## <a name="how-work"></a>How does it work?
+
+**Great question!**
+
+## <a name="data-domains"></a>What are the data domains within Stator?
+
+At the current time you can write visualisations for the following data domains (internal to Stator):
+
+1. None - you obtain your own JSON
+2. Markets - Charting
+3. Markets - Watchlist
+4. Home - Summary
+5. Estate - Summary
+6. Estate - Cash accounts
+7. Estate - Cash transactions
+8. Estate - Diary entries
+9. Estate - Position statistics
+10. Estate - Open positions
+11. Estate - Income
+12. Estate - Closed positions
+
+## <a name="ide-environment"></a>How do I write code, what is the development environment?
+
+Creating the functionality to display visualisations within Stator wasn't enough. I needed to enable users to write and execute code (visualisation code) within Stator. I had know other choice than to write a custom development environment (<i>integrated development environment [IDE])</i> within Stator.
+
+
+
+## <a name="contribute"></a>I would like to contribute my time and expertise
+
+**I'd like that!**
+
+There are a couple of things you need to do before you can start contributing or writing your own visual studies. These requirements are listed below:
+
+1. <a href="http://www.stator-afm.com">Download and install Stator</a>
+2. <a href="http://www.stator-afm.com/about-stator-visualisation-studies/">Download the visual studies add-on</a>
+3. Read through the visual studies installation guide
+4. Open the visual studies IDE
+5. **Start coding, experimenting and creating your own awesome visualisations!**
 
 ## <a name="license"></a>License information
 
-These visual studies are intended to be used with Stator - Advanced Finance Management software. If you create anything new and exicting please let the community know. That's all and play nice!
+These visual studies are intended to be used with Stator - Advanced Finance Management software. If you create anything new and exicting please let the community know. That's all, **play nice!**

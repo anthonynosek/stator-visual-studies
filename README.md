@@ -22,6 +22,7 @@ And yeah, I am the guy that wrote Stator so <i>send me some love if you don't mi
 * [Show me pictures](#show-pictures)
 * [How does it work?](#how-work)
 * [The data domains within Stator](#data-domains)
+* [The underlying data](#data)
 * [The development environment](#ide-environment)
 * [I want to contribute](#contribute)
 * [License](#license)
@@ -34,7 +35,7 @@ And yeah, I am the guy that wrote Stator so <i>send me some love if you don't mi
 
 I wanted to give users of Stator as much flexibility as possible in analysing their data. With the evolution of HTML5 and javascript visualisation libraries it was only natural that someone (aka me) try and merge everything into desktop software. The end result is a free add-on that leverages HTML5 technology directly in the desktop environment.
 
-Stator exposes data at various 'domains' within the software and users can write visualisations using any of the popular visualisation libraries available. At the current time visual studies supports the following libraries:
+Stator exposes data at various '[domains](#data-domains)' within the software and users can write visualisations using any of the popular visualisation libraries available. At the current time visual studies supports the following libraries:
 
 > <a href="http://d3js.org/">![D3](https://raw.githubusercontent.com/anthonynosek/stator-visual-studies/master/_misc/graphics/icon_d3js.jpg?raw=true)</a> 
 > <a href="http://nickqizhu.github.io/dc.js/">![DC.js](https://raw.githubusercontent.com/anthonynosek/stator-visual-studies/master/_misc/graphics/icon_dcjs.jpg?raw=true)</a> 
@@ -64,6 +65,12 @@ Here are a couple of pictures that should give you an idea what visual studies i
 
 ![position domain](https://raw.githubusercontent.com/anthonynosek/stator-visual-studies/master/_misc/graphics/visualstudies_closedpositiondataexample.jpg?raw=true)
 
+**And this...*** This is a visual study generated within Stator for closed positions. This is a cluster plot of close position profit/loss. It gives you an idea what is possible with visual studies, the code for this visualisation is provided in this repository.
+
+![ide](https://raw.githubusercontent.com/anthonynosek/stator-visual-studies/master/_misc/graphics/131002_D3ClosedPositionClusterWithProfit.png?raw=true)
+
+<i>Visual studies development environment</i>
+
 <i>Open Positions data domain</i>
 
 What can be seen in the two pictures above are **two alternatives to the same underlying data**. The data repository is shown on the left, it looks like a dark barrel. On the right are two images, the default Stator screen is shown above and an alternative visualisation of the same data shown underneath.
@@ -89,11 +96,35 @@ At the current time you can write visualisations for the following data domains 
 11. Estate - Income
 12. Estate - Closed positions
 
+## <a name="data"></a>What's the format of the underlying data?
+
+**JSON** - (JavaScript Object Notation) is a lightweight data-interchange format.
+
+JSON is easy for humans to read and write and easy for machines to parse and generate. The following code extract is an example of data in JSON format. I am sure you already know this...
+
+```
+{
+	"widget": {
+		"debug": "on",
+		"window": {
+			"title": "Sample Konfabulator Widget",
+			"name": "main_window",
+			"width": 500,
+			"height": 500
+		}
+	}
+}
+```
+
+For the various data domains Stator exposes the data in JSON format. Each visualisation study automatically allocates the data to a variable which you can use in your visualisation. And depending upon which visualisation library you choose will determine the code syntax that you'll write.
+
 ## <a name="ide-environment"></a>How do I write code, what is the development environment?
 
 Creating the functionality to display visualisations within Stator wasn't enough. I needed to enable users to write and execute code (visualisation code) within Stator. I had know other choice than to write a custom development environment (<i>integrated development environment [IDE])</i> within Stator.
 
+![ide](https://raw.githubusercontent.com/anthonynosek/stator-visual-studies/master/_misc/graphics/131002_DCStockMarketPriceDataInIDE.png?raw=true)
 
+<i>Visual studies development environment</i>
 
 ## <a name="contribute"></a>I would like to contribute my time and expertise
 

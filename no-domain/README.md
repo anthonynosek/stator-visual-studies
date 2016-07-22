@@ -7,3 +7,6 @@ Stator does not provide any JSON data for this domain. For any visual studies yo
 ### Where are canvases for this domain found within Stator?
 1. Main Stator Home Screen  
    This is the main screen that loads when you open Stator (Standard, Professional, Platinum)
+
+### JSON data format
+<i>Not applicable</i>

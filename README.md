@@ -8,12 +8,12 @@
 
 ## Before we go on, explain what Stator is again?
 
-To put this in simple terms, Stator is portfolio management software. Ever seen the movie <a href="http://www.imdb.com/title/tt0094291/">'Wall Street'</a> or <a href="http://www.imdb.com/title/tt0993846/">'The Wolf of Wall Street'</a>? Well it's software that can be used by those individuals as well as any other, down-to-earth trader or investor. More than likely the people using Stator are more like you and I!
+To put this in simple terms, Stator is portfolio management software. Ever seen the movie <a href="http://www.imdb.com/title/tt0094291/">'Wall Street'</a> or <a href="http://www.imdb.com/title/tt0993846/">'The Wolf of Wall Street'</a>? Well it's software that can be used by those individuals as well as any other, down-to-earth trader or investor. It's more than likely the people using Stator are more like you and I than Gordon Gekko!
 
 Visit the website to learn more:
 <a href="http://www.stator-afm.com">Stator AFM website</a>
 
-And yeah, I am the guy that wrote Stator so <i>send me some love if you don't mind</i>!
+And yeah, I am the human that wrote Stator so <i>send me some love if you don't mind</i>!
 
 ## Table of contents
  
@@ -37,18 +37,22 @@ I wanted to give users of Stator as much flexibility as possible in analysing th
 
 Stator exposes data at various '[domains](#data-domains)' within the software and users can write visualisations using any of the popular visualisation libraries available. At the current time visual studies supports the following libraries:
 
+> <a href="http://chartjs.org/">![Chart](https://raw.githubusercontent.com/anthonynosek/stator-visual-studies/master/_misc/graphics/icon_chartjs.png?raw=true)</a> 
 > <a href="http://d3js.org/">![D3](https://raw.githubusercontent.com/anthonynosek/stator-visual-studies/master/_misc/graphics/icon_d3js.jpg?raw=true)</a> 
 > <a href="http://nickqizhu.github.io/dc.js/">![DC.js](https://raw.githubusercontent.com/anthonynosek/stator-visual-studies/master/_misc/graphics/icon_dcjs.jpg?raw=true)</a> 
-> <a href="http://dygraphs.com/">![Dygraph.js](https://raw.githubusercontent.com/anthonynosek/stator-visual-studies/master/_misc/graphics/icon_dygraphsjs.jpg?raw=true)</a> 
+> <a href="http://dygraphs.com/">![Dygraph.js](https://raw.githubusercontent.com/anthonynosek/stator-visual-studies/master/_misc/graphics/icon_dygraphsjs.jpg?raw=true)</a>
+> <a href="http://echarts.baidu.com/">![ECharts](https://raw.githubusercontent.com/anthonynosek/stator-visual-studies/master/_misc/graphics/icon_echarts.png?raw=true)</a>
 > <a href="http://paperjs.org/">![Paper.js](https://raw.githubusercontent.com/anthonynosek/stator-visual-studies/master/_misc/graphics/icon_paperjs.jpg?raw=true)</a> 
 > <a href="http://processingjs.org/">![Processing.js](https://raw.githubusercontent.com/anthonynosek/stator-visual-studies/master/_misc/graphics/icon_processingjs.jpg?raw=true)</a> 
 > <a href="http://raphaeljs.com/">![Raphael.js](https://raw.githubusercontent.com/anthonynosek/stator-visual-studies/master/_misc/graphics/icon_raphaeljs.jpg?raw=true)</a> 
 
 Those are the big boys of javascript visualisation libraries right there, from left to right they are:
 
+* <a href="http://chartjs.org/">Chart</a>
 * <a href="http://d3js.org/">D3 - Data Driven Documents (version 3 or 4+)</a>
 * <a href="http://nickqizhu.github.io/dc.js/">DC - Uses D3 v3</a>
 * <a href="http://dygraphs.com/">Dygraphs</a>
+* <a href="http://echarts.baidu.com/">ECharts</a>
 * <a href="http://paperjs.org/">Paper</a>
 * <a href="http://processingjs.org/">Processing</a>
 * <a href="http://raphaeljs.com/">Raphael</a>
@@ -65,15 +69,13 @@ Here are a couple of pictures that should give you an idea what visual studies i
 
 ![position domain](https://raw.githubusercontent.com/anthonynosek/stator-visual-studies/master/_misc/graphics/visualstudies_closedpositiondataexample.jpg?raw=true)
 
-**And this...*** This is a visual study generated within Stator for closed positions. This is a cluster plot of close position profit/loss. It gives you an idea what is possible with visual studies, the code for this visualisation is provided in this repository.
-
-![ide](https://raw.githubusercontent.com/anthonynosek/stator-visual-studies/master/_misc/graphics/131002_D3ClosedPositionClusterWithProfit.png?raw=true)
-
-<i>Visual studies development environment</i>
-
 <i>Open Positions data domain</i>
 
 What can be seen in the two pictures above are **two alternatives to the same underlying data**. The data repository is shown on the left, it looks like a dark barrel. On the right are two images, the default Stator screen is shown above and an alternative visualisation of the same data shown underneath.
+
+**And the picture below...** This is a visual study generated in Stator for closed positions. This is a cluster plot of close position profit/loss. It gives you an idea what is possible with visual studies, the code for this visualisation is provided in this repository.
+
+![ide](https://raw.githubusercontent.com/anthonynosek/stator-visual-studies/master/_misc/graphics/131002_D3ClosedPositionClusterWithProfit.png?raw=true)
 
 ## <a name="how-work"></a>How does it work?
 
@@ -132,8 +134,18 @@ Creating the functionality to display visualisations within Stator wasn't enough
 
 There are a couple of things you need to do before you can start contributing or writing your own visual studies. These requirements are listed below:
 
-1. <a href="http://www.stator-afm.com">Download and install Stator</a>
-2. <a href="http://www.stator-afm.com/about-stator-visualisation-studies/">Download the visual studies add-on</a>
+1. <a href="http://www.stator-afm.com">Download and install Stator</a>  
+   Inside the Stator installation folder will be two empty folders called:   
+   * "visual studies" 
+   * "visual studies libraries"
+   
+	![install](https://raw.githubusercontent.com/anthonynosek/stator-visual-studies/master/_misc/graphics/screen_installfolders.png?raw=true)
+
+2. <a href="http://www.stator-afm.com/about-stator-visualisation-studies/">Download the visual studies add-on</a>   
+   Downloading the visual studies add-on is simply downloading all the library files that Stator requires in order to load the visualisations. **After you install visual studies** the libraries folder should contain files such as:  
+
+	![libraries](https://raw.githubusercontent.com/anthonynosek/stator-visual-studies/master/_misc/graphics/screen_installfoldersvisuallibraries.png?raw=true)
+
 3. Read through the visual studies installation guide
 4. Open the visual studies IDE
 5. **Start coding, experimenting and creating your own awesome visualisations!**

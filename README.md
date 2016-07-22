@@ -104,7 +104,7 @@ At the current time you can write visualisations for the following data domains 
 
 JSON is easy for humans to read and write and easy for machines to parse and generate. The following code extract is an example of data in JSON format. I am sure you already know this...
 
-```
+```json
 {
 	"widget": {
 		"debug": "on",

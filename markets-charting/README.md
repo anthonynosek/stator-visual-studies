@@ -71,22 +71,41 @@ dataPrice[i] = getJsonData('##JSON_DATA_FILES##'); // Line per file
 
 ![stator_d3area](https://raw.githubusercontent.com/anthonynosek/stator-visual-studies/master/_misc/graphics/screen_markets-charting-price-time-d3.png?raw=true)
 
+(Above) Simple price area chart using Data Driven Documents, D3.js.  
+Author: Anthony Nosek
+
 ## <a name="d3-correlation"></a>Visual Study: Correlation Turnover (D3)
 
 ![stator_d3cor](https://raw.githubusercontent.com/anthonynosek/stator-visual-studies/master/_misc/graphics/screen_markets-charting-correlationturnover-d3.png?raw=true)
+
+(Above) Correlations between multiple securities over time using D3.js.  
+For more information regarding this visual study please <a href="http://www.stator-afm.com">click here</a>.  
+Author: Anthony Nosek  
 
 ## <a name="d3-linevol"></a>Visual Study: Line with Volume (D3)
 
 ![stator_d3linvol](https://raw.githubusercontent.com/anthonynosek/stator-visual-studies/master/_misc/graphics/screen_markets-charting-line-volume-d3.png?raw=true)
 
+(Above) Simple line and volume study using D3.js.  
+Author: Anthony Nosek
+
 ## <a name="d3-standardclose"></a>Visual Study: Standardised Close (D3)
 
 ![stator_d3stan](https://raw.githubusercontent.com/anthonynosek/stator-visual-studies/master/_misc/graphics/screen_markets-charting-standardclose-d3.png?raw=true)
+
+(Above) Plot the closing price of multiple securities rebased to a 100 index at any point in time as determined by the x-axis slider. Generated using D3.js.  
+Author: Anthony Nosek
 
 ## <a name="dC-monthdim"></a>Visual Study: Monthly Dimensional (DC)
 
 ![stator_dcmondim](https://raw.githubusercontent.com/anthonynosek/stator-visual-studies/master/_misc/graphics/screen_markets-charting-month-dimension-dc.png?raw=true)
 
+(Above) A mimic panel of data relating to one underlying security created by DC.js.  
+Author: Anthony Nosek
+
 ## <a name="dygraph-line"></a>Visual Study: Line (dygraph)
 
 ![stator_dylin](https://raw.githubusercontent.com/anthonynosek/stator-visual-studies/master/_misc/graphics/screen_markets-charting-line-dygraph.png?raw=true)
+
+(Above) A plot of closing price using the dygraph visualisation library.  
+Author: Anthony Nosek

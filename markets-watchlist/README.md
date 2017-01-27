@@ -116,4 +116,20 @@ var dataWatchlist = getJsonData('##JSON_DATA_FILE##');
 ```
 
 ## Visual studies in this repository for this data-domain
-<i>None at the time of writing.</i>
+
+* [Percentage change treemap (D#.js)](#d3-tree)
+* [Percentage change pack layout grouped (D3.js)](#d3-pack)
+
+## <a name="d3-tree"></a>Visual Study: Percentage Change Treemap (D3)
+
+![stator_d3treemap](https://raw.githubusercontent.com/anthonynosek/stator-visual-studies/master/_misc/graphics/screen_markets-watchlist-percent_change_treemap-d3.png?raw=true)
+
+(Above) Percentage change treemap layout. The size of each tile is related to turnover (latest price x volume), the colour- related to the magnitude of percentage change, i.e. bright green for large positive moves, bright red for large negative moves. Visualisation created using Data Driven Documents, D3.js and Stator.  
+Author: Anthony Nosek
+
+## <a name="d3-pack"></a>Visual Study: Percentage Change Pack Layout Grouped (D3)
+
+![stator_d3pack](https://raw.githubusercontent.com/anthonynosek/stator-visual-studies/master/_misc/graphics/screen_markets-watchlist-percent_change_pack-layout-d3.png?raw=true)
+
+(Above) Percentage change pack layout grouped by category using D3.js. Tickers are grouped by category (user defined), the size of each ticker circle is related to turnover (latest price x volume) and color related to the magnitude of percentage change. The visualisation shown above is the ASX50 index @ 27th January 2017-11:20AM.  
+Author: Anthony Nosek

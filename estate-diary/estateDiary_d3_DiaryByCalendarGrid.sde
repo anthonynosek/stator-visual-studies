@@ -2,7 +2,7 @@
 	i5ij½ÀC¼ûE»”d›Diary by CalendarDiary by calendar grid"øA calendar view of diary notes for the current and previous year. To view the first diary note assigned for a particular date just hover the mouse over the coloured square.
 
 This visualisation was inspired by:
-http://bl.ocks.org/mbostock/4063318*Anthony Nosek2 :TC:\Programs Finance\Stator AFM\visual studies\estateDiary_d3_DiaryByCalendarGrid.sdeB”­¦ÖÇÉù0J°ÇŞ˜İ±˜4 ª«@
+http://bl.ocks.org/mbostock/4063318*Anthony Nosek2 :TC:\Programs Finance\Stator AFM\visual studies\estateDiary_d3_DiaryByCalendarGrid.sdeB”­¦ÖÇÉù0Jì½ü²÷õä4 ª«@
 	ƒİïßÖ^O©^È°ãÀÉT”@
 	ƒİïßÖ^O©^È°ãÀÉTCalendarí?// ----------------------------------------------------------
 // Written by Anthony Nosek (anthonynosek@gmail.com)
@@ -228,7 +228,7 @@ var diaryNoteType = svgDiary.append("text")
 	.attr("y", 20);
 	
 var foreign = svgDiary.append("foreignObject")
-	.attr("y", 14)
+	.attr("y", 27)
 	.attr("width", width * .93)
 	.attr("height", height - (quarterHeight * 2) + headerHeight);
 	
